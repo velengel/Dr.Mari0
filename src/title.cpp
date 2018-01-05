@@ -37,7 +37,7 @@ void title::draw(){
 }
 
 void title::keyPressed(int key){
-    if(key=='z')currentScene=1;
+    //if(key=='z')currentScene=1;
 }
 
 void title::keyReleased(int key){
