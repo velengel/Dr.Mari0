@@ -5,7 +5,7 @@
 
 #define rep(i,j) for(int i=0;i<2;++i)for(int j=0;j<2;++j)
 
-
+int currentScene;
 void title::setup(){
     keyboard[1].load("Phosphate.ttc",80);
     keyboard[1].setSpaceSize(40.0);
@@ -37,7 +37,7 @@ void title::draw(){
 }
 
 void title::keyPressed(int key){
-    //if(key=='z')currentScene=1;
+    if(key=='z')currentScene=1;
 }
 
 void title::keyReleased(int key){
@@ -47,14 +47,14 @@ void title::keyReleased(int key){
 //--------------------------------------------------------------------------------------------------
 //play
 
-void retC(int C) {
+void play::retC(int C) {
     if (C%10 == 1)ofSetColor(255,0,0);
     else if (C%10 == 2)ofSetColor(255, 255, 0);
     else if (C%10 == 3)ofSetColor(0, 0, 255);
     else ofSetColor(255, 255, 255);
 }
 
-void DrawBlocks(int x, int y, int ablock[][2]) {
+void play::DrawBlocks(int x, int y, int ablock[][2]) {
     rep(i,j){
         retC(ablock[i][j]);
         if(ablock[i][j]!=0)ofDrawRectangle(x+i*cell, y+j*cell, cell, cell);
@@ -62,7 +62,7 @@ void DrawBlocks(int x, int y, int ablock[][2]) {
 }
 
 //rotation block
-void rotB() {
+void play::rotB() {
     rotblock[0][1] = nowblock[0][0];
     rotblock[1][1] = nowblock[0][1];
     rotblock[1][0] = nowblock[1][1];
@@ -70,12 +70,12 @@ void rotB() {
     rep(i,j)nowblock[i][j] = rotblock[i][j];
 }
 
-bool isblock(int x, int y) {
+bool play::isblock(int x, int y) {
     if (field[(x - cell*2) / cell][y / cell+1] != 0)return true;
     return false;
 }
 
-void DrawField() {
+void play::DrawField() {
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 24; ++j) {
             if (field[i][j] != 0) {
@@ -97,9 +97,9 @@ void DrawField() {
     }
 }
 
-static int sco;
 
-void eraseblock(){
+
+void play::eraseblock(){
     while (1) {
         f2 = true;
         for (int i = 0; i < 9; ++i) {
@@ -123,7 +123,7 @@ void eraseblock(){
     }
 }
 
-void iseraseblock() {
+void play::iseraseblock() {
     f = false;
     //height
     for (int i = 0; i < 9; ++i) {
@@ -189,7 +189,7 @@ void iseraseblock() {
     }
 }
 
-void createblock(){
+void play::createblock(){
     fibl = rand() % 6;
     rep(i,j){
         nowblock[i][j]=nextblock[i][j];
@@ -201,8 +201,8 @@ void createblock(){
     if(field[4][0]+field[4][1]>0)gflag=1;
     sounds[1].play();
 }
-static int originf=0;
-void init(){
+
+void play::init(){
     cnttim=0;
     sounds[1].play();
     score = 0;
@@ -226,9 +226,7 @@ void init(){
     }
 }
 
-static int virusnum[3];
-
-void cntdispvirus(){
+void play::cntdispvirus(){
     for(int i=0;i<3;++i)virusnum[i]=0;
     f=true;
     for (int i = 0; i < 9; ++i) {
@@ -258,6 +256,7 @@ void play::setup(){
     ofBackground(0, 0, 0);
     ofSetWindowShape(1024, 768);
     ofSetWindowPosition(150, 100);
+    
     init();
     viruses[0].load("images/rvirus.png");
     viruses[1].load("images/yvirus.png");
@@ -300,7 +299,7 @@ void play::update(){
    
 }
 
-static int tflag=0;
+//static int tflag=0;
 //--------------------------------------------------------------
 void play::draw(){
     ofBackground(75, 75, 75);
@@ -527,7 +526,7 @@ void clear::draw(){
             ofColor c;
             c.setHsb( hue, ofMap(i, ofGetWidth(),-ofGetWidth()/2, 0,128), ofMap(j, -ofGetHeight()/4,ofGetHeight()/4, 0,128 ) );
             ofSetColor( c );
-            ofRect( i, j, step-1, step-1 );
+            ofRectangle( i, j, step-1, step-1 );
         }
     }
     keyboard[1].drawString("Clear",100,200);
