@@ -1,13 +1,16 @@
 
 #pragma once
 #include "ofMain.h"
-#include "ofApp.h"
+//#include "ofApp.h"
 // 全てのシーンの雛形
+class ofApp;
+
 class BaseScene {
     
 public:
+    ofApp &b;
     //仮想関数 (virtual) として定義する
-    
+    BaseScene(ofApp& a):b(a){};
     virtual void setup(){};
     virtual void update(){};
     virtual void draw(){};
@@ -26,5 +29,6 @@ public:
     int step = 30;
     float hue = fmodf(ofGetElapsedTimef()*200,255);
     //void ChangeScene(int a);
+    virtual void init(){};
 };
 

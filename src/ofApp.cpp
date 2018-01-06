@@ -1,20 +1,21 @@
 
 
 #include "ofApp.h"
-
+class play;
+//int currentScene;
 void ofApp::setup(){
     
     ofSetFrameRate(60);
     ofBackground(0);
-    BaseScene *stitle = new title();
+    BaseScene *stitle =  new title(*this);
     stitle->setup();
     scenes.push_back(stitle);
     
-    BaseScene *splay = new play();
+    BaseScene *splay = new play(*this);
     splay->setup();
     scenes.push_back(splay);
     
-    BaseScene *sclear = new clear();
+    BaseScene *sclear = new clear(*this);
     sclear->setup();
     scenes.push_back(sclear);
     
@@ -35,14 +36,20 @@ void ofApp::keyPressed(int key){
             
         case '1':
             ChangeScene(0);
+            //currentScene=0;
             break;
             
         case '2':
             ChangeScene(1);
+            //currentScene=1;
+            
+            scenes[1]->init();
             break;
             
         case '3':
             ChangeScene(2);
+            //currentScene=2;
+            
             break;
     }
     scenes[currentScene]->keyPressed(key);
@@ -55,6 +62,6 @@ void ofApp::keyReleased(int key){
 }
 
 
-void ofApp::ChangeScene(int a){
-    currentScene=a;
+void ofApp::ChangeScene(int s){
+    currentScene=s;
 }

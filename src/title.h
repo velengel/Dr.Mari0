@@ -9,6 +9,9 @@ class title : public BaseScene {
     
     
 public:
+    //ofApp &a;
+    title(ofApp& a):BaseScene(a){};
+    
     void setup();
     void update();
     void draw();
@@ -61,6 +64,9 @@ class play : public BaseScene {
     int virusnum[3];
     
 public:
+    //ofApp &b;
+    play(ofApp& a):BaseScene(a){}
+   // void ChangeScene(int a);
     void retC(int C);
     void DrawBlocks(int x, int y, int ablock[][2]);
     void rotB();
@@ -81,6 +87,9 @@ public:
 class clear : public BaseScene {
     
 public:
+    //ofApp &b;
+    clear(ofApp& a):BaseScene(a){}
+    
     void setup();
     void update();
     void draw();

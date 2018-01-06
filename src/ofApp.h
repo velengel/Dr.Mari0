@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "basescene.h"
+//#include "basescene.h"
 #include "title.h"
 
 static ofImage viruses[5];
@@ -10,9 +10,10 @@ static ofSoundPlayer sounds[10];
 //extern int currentScene;
 
 //ウイルスを時間で増やす
+class BaseScene;
 
 class ofApp : public ofBaseApp{
-
+    //BaseScene a;
 	public:
 		void setup();
 		void update();
@@ -29,7 +30,6 @@ class ofApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);*/
-    
         int currentScene;
         vector<BaseScene *> scenes;
         void ChangeScene(int a);

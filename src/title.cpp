@@ -5,7 +5,7 @@
 
 #define cap(i,j) for(int i=0;i<2;++i)for(int j=0;j<2;++j)
 
-//int currentScene;
+
 void title::setup(){
     keyboard[1].load("Phosphate.ttc",80);
     keyboard[1].setSpaceSize(40.0);
@@ -46,6 +46,11 @@ void title::keyReleased(int key){
 
 //--------------------------------------------------------------------------------------------------
 //play
+
+
+/*void play::ChangeScene(int s){
+    b.ChangeScene(s);
+}*/
 
 void play::retC(int C) {
     if (C%10 == 1)ofSetColor(255,0,0);
@@ -203,6 +208,11 @@ void play::createblock(){
 }
 
 void play::init(){
+    for (int i = 0; i < 9; ++i) {
+        for (int j = 0; j < 24; ++j) {
+            efield[i][j]=0;
+        }
+    }
     cnttim=0;
     sounds[1].play();
     score = 0;
@@ -238,7 +248,9 @@ void play::cntdispvirus(){
         }
     }
     if(f){
-        //ChangeScene(2);
+        //currentScene=2;
+       // *this->ChangeScene(2);
+        b.ChangeScene(2);
         //keyboard[0].drawString(ofToString(currentScene), 700+50,250);
     }
     for(int i=0;i<3;++i){
