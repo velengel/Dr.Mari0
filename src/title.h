@@ -7,6 +7,7 @@
 // BaseSceneを継承したSceneA
 class title : public BaseScene {
     
+    
 public:
     void setup();
     void update();

@@ -1,17 +1,13 @@
-//
-//  basescene.h
-//  Dr_MARI0
-//
-//  Created by Nakamura Kouki on 2018/01/01.
-//
+
 #pragma once
 #include "ofMain.h"
-
+#include "ofApp.h"
 // 全てのシーンの雛形
 class BaseScene {
     
 public:
     //仮想関数 (virtual) として定義する
+    
     virtual void setup(){};
     virtual void update(){};
     virtual void draw(){};
@@ -27,4 +23,8 @@ public:
     virtual void windowResized(int w, int h){};
     virtual void gotMessage(ofMessage msg){};
     virtual void dragEvent(ofDragInfo dragInfo){};*/
+    int step = 30;
+    float hue = fmodf(ofGetElapsedTimef()*200,255);
+    //void ChangeScene(int a);
 };
+

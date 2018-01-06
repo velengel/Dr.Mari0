@@ -1,3 +1,5 @@
+
+
 #include "ofApp.h"
 
 void ofApp::setup(){
@@ -32,15 +34,15 @@ void ofApp::keyPressed(int key){
     switch (key) {
             
         case '1':
-            currentScene = 0;
+            ChangeScene(0);
             break;
             
         case '2':
-            currentScene = 1;
+            ChangeScene(1);
             break;
             
         case '3':
-            currentScene = 2;
+            ChangeScene(2);
             break;
     }
     scenes[currentScene]->keyPressed(key);
@@ -50,4 +52,9 @@ void ofApp::keyPressed(int key){
 
 void ofApp::keyReleased(int key){
     scenes[currentScene]->keyReleased(key);
+}
+
+
+void ofApp::ChangeScene(int a){
+    currentScene=a;
 }

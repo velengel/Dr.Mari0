@@ -3,9 +3,9 @@
 #include "title.h"
 #include "ofApp.h"
 
-#define rep(i,j) for(int i=0;i<2;++i)for(int j=0;j<2;++j)
+#define cap(i,j) for(int i=0;i<2;++i)for(int j=0;j<2;++j)
 
-int currentScene;
+//int currentScene;
 void title::setup(){
     keyboard[1].load("Phosphate.ttc",80);
     keyboard[1].setSpaceSize(40.0);
@@ -22,14 +22,14 @@ void title::update(){
 
 void title::draw(){
     ofBackground(0, 0, 0);
-    float hue = fmodf(ofGetElapsedTimef()*200,255);
-    int step = 30;
+    
+    
     for ( int i = 0; i < ofGetWidth(); i+=step ){
         for ( int j=0; j < ofGetHeight(); j+=step){
             ofColor c;
             c.setHsb( hue, ofMap(i, ofGetWidth(),-ofGetWidth()/2, 0,128), ofMap(j, -ofGetHeight()/4,ofGetHeight()/4, 0,128 ) );
             ofSetColor( c );
-            ofRectangle( i, j, step-1, step-1 );
+            ofRect( i, j, step-1, step-1 );
         }
     }
     keyboard[1].drawString("Dr.MARI0",100,200);
@@ -37,7 +37,7 @@ void title::draw(){
 }
 
 void title::keyPressed(int key){
-    if(key=='z')currentScene=1;
+    //if(key=='z')currentScene=1;
 }
 
 void title::keyReleased(int key){
@@ -55,7 +55,7 @@ void play::retC(int C) {
 }
 
 void play::DrawBlocks(int x, int y, int ablock[][2]) {
-    rep(i,j){
+    cap(i,j){
         retC(ablock[i][j]);
         if(ablock[i][j]!=0)ofDrawRectangle(x+i*cell, y+j*cell, cell, cell);
     }
@@ -67,7 +67,7 @@ void play::rotB() {
     rotblock[1][1] = nowblock[0][1];
     rotblock[1][0] = nowblock[1][1];
     rotblock[0][0] = nowblock[1][0];
-    rep(i,j)nowblock[i][j] = rotblock[i][j];
+    cap(i,j)nowblock[i][j] = rotblock[i][j];
 }
 
 bool play::isblock(int x, int y) {
@@ -191,11 +191,11 @@ void play::iseraseblock() {
 
 void play::createblock(){
     fibl = rand() % 6;
-    rep(i,j){
+    cap(i,j){
         nowblock[i][j]=nextblock[i][j];
     }
     
-    rep(i,j){
+    cap(i,j){
         nextblock[i][j] = Blocks[fibl][i][j];
     }
     if(field[4][0]+field[4][1]>0)gflag=1;
@@ -210,15 +210,15 @@ void play::init(){
     by = 0;
     tim = 0;
     Nvirus = 2;
-    pflag = 0;
+    pflag = 0,gflag=0,eflag=0;
     fibl = rand() % 6;
-    gflag=0;
+    accel=1;
     for(int i=0;i<30;++i)for(int j=0;j<30;++j)field[i][j]=0;
     for (int i = 0; i < 9; ++i)field[i][23] = 4;
     
-    rep(i,j)nowblock[i][j] = Blocks[fibl][i][j];
+    cap(i,j)nowblock[i][j] = Blocks[fibl][i][j];
     fibl = rand() % 6;
-    rep(i,j)nextblock[i][j]=Blocks[fibl][i][j];
+    cap(i,j)nextblock[i][j]=Blocks[fibl][i][j];
     //virus
     for (int i = 0; i < Nvirus; ++i) {
         vx = rand() % 9, vy = rand() % 13+9;
@@ -238,8 +238,8 @@ void play::cntdispvirus(){
         }
     }
     if(f){
-        currentScene=2;
-        keyboard[0].drawString(ofToString(currentScene), 700+50,250);
+        //ChangeScene(2);
+        //keyboard[0].drawString(ofToString(currentScene), 700+50,250);
     }
     for(int i=0;i<3;++i){
         retC(i+1);
@@ -273,7 +273,7 @@ void play::update(){
     if (tim > 1000) {
         tim -= 1000;
         f = false;
-        rep(i, j) {
+        cap(i, j) {
             if (nowblock[i][j] && isblock(bx + i * cell, by + j * cell )) {
                 f = true;
                 break;
@@ -281,7 +281,7 @@ void play::update(){
         }
         if(!f)by += cell;
         else {
-            rep(i, j) {
+            cap(i, j) {
                 if (nowblock[i][j])field[(bx + i * cell - cell*2) / cell][(by + j * cell) / cell] = nowblock[i][j];
             }
             iseraseblock();
@@ -325,6 +325,7 @@ void play::draw(){
     cntdispvirus();
     ofSetColor(255,122,255);
     keyboard[0].drawString("Score : "+ofToString(score), 400,190);
+    //keyboard[0].drawString("tim : "+ofToString(tim), 700,290);
     if(scur>0){
         ofNoFill();
         ofSetColor(255, 255, 255);
@@ -371,7 +372,7 @@ void play::draw(){
     if(gflag){
         ofBackground(175, 175, 175);
         keyboard[1].drawString("GAME OVER",100,200);
-        keyboard[1].drawString("PRESS 2 key to replay",10,400);
+        keyboard[1].drawString("PRESS 2 key to caplay",10,400);
     }
     if(!tflag)cnttim++;
     keyboard[0].drawString("Time : "+ofToString(cnttim/60), 650,190);
@@ -385,16 +386,16 @@ void play::keyPressed(int key){
         scur=1;
         rotB();
         f3 = false;
-        rep(i, j) {
+        cap(i, j) {
             if (nowblock[i][j] && field[(bx + i * cell - cell*2) / cell][(by + j * cell) / cell])f3 = true;
         }
         if (f3)for (int i = 0; i < 3; ++i)rotB();
         else {
             f = false, f2 = false;
-            rep(i, j) {
+            cap(i, j) {
                 if (nowblock[i][j] && bx + i * cell > cell*10)f = true;
             }
-            rep(i, j) {
+            cap(i, j) {
                 if (nowblock[i][j] && bx + i * cell < cell*2)f2 = true;
             }
             if (f)bx -= cell;
@@ -411,16 +412,16 @@ void play::keyPressed(int key){
         for(int i=0;i<3;++i)rotB();
         scur=2;
         f3 = false;
-        rep(i, j) {
+        cap(i, j) {
             if (nowblock[i][j] && field[(bx + i * cell - cell*2) / cell][(by + j * cell) / cell])f3 = true;
         }
         if (f3)rotB();
         else {
             f = false, f2 = false;
-            rep(i, j) {
+            cap(i, j) {
                 if (nowblock[i][j] && bx + i * cell > cell*10)f = true;
             }
-            rep(i, j) {
+            cap(i, j) {
                 if (nowblock[i][j] && bx + i * cell < cell*2)f2 = true;
             }
             if (f)bx -= cell;
@@ -437,7 +438,7 @@ void play::keyPressed(int key){
         
         scur=4;
         f = false;
-        rep(i, j) {
+        cap(i, j) {
             if (nowblock[i][j]) {
                 if (bx + i * cell - cell < cell*2)f = true;
                 //0 < (bx + i * cell - cell*2) / cell - 1 ||
@@ -452,7 +453,7 @@ void play::keyPressed(int key){
     if(key == OF_KEY_RIGHT && !pflag){
         scur=5;
         f = false;
-        rep(i, j) {
+        cap(i, j) {
             if (nowblock[i][j]) {
                 if (bx + i * cell + cell > cell*10)f = true;
                 if (field[(bx + i * cell - cell*2) / cell + 1][(by + j * cell) / cell])f = true;
@@ -472,7 +473,7 @@ void play::keyPressed(int key){
         scur=6;
         while (1) {
             f = false;
-            rep(i, j) {
+            cap(i, j) {
                 if (nowblock[i][j] && isblock(bx + i * cell, by + j * cell)) {
                     f = true;
                     break;
@@ -481,7 +482,7 @@ void play::keyPressed(int key){
             if (!f)by += cell;
             else break;
         }
-        rep(i, j) {
+        cap(i, j) {
             if (nowblock[i][j])field[(bx + i * cell - cell*2) / cell][(by + j * cell) / cell] = nowblock[i][j];
         }
         iseraseblock();
@@ -526,7 +527,7 @@ void clear::draw(){
             ofColor c;
             c.setHsb( hue, ofMap(i, ofGetWidth(),-ofGetWidth()/2, 0,128), ofMap(j, -ofGetHeight()/4,ofGetHeight()/4, 0,128 ) );
             ofSetColor( c );
-            ofRectangle( i, j, step-1, step-1 );
+            ofRect( i, j, step-1, step-1 );
         }
     }
     keyboard[1].drawString("Clear",100,200);
