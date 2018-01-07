@@ -20,18 +20,6 @@ public:
 };
 
 class play : public BaseScene {
-    static const int cell=30;
-    int accel;
-    int bx, by;
-    int vx, vy;
-    double tim, etim;
-    int cnttim;
-    int Nvirus ;
-    int pflag, eflag, gflag, tflag;
-    int fibl;
-    int field[30][30], efield[30][30];//width=8, height=16
-    int nowblock[2][2],nextblock[2][2],rotblock[2][2];
-    int score,cnt, cl, sco;
     std::array<std::array<std::array<int,2>,2>,6> Blocks =
     {{
         {{
@@ -60,22 +48,27 @@ class play : public BaseScene {
         }}
     }};
     bool f, f2, f3;
-    int scur;//*/
-    int virusnum[3];
     
+    int virusnum[3];
+    int chain[2];
+    int cntturn=0;
+    int gauge=0;
 public:
     //ofApp &b;
-    play(ofApp& a):BaseScene(a){}
+    BaseScene* p;
+    play(ofApp& a, BaseScene* q):BaseScene(a), p(q){}
    // void ChangeScene(int a);
+    void nextcap();
     void retC(int C);
     void DrawBlocks(int x, int y, int ablock[][2]);
     void rotB();
     bool isblock(int x, int y);
     void DrawField();
     void eraseblock();
-    void iseraseblock();
+    bool iseraseblock();
     void createblock();
     void cntdispvirus();
+    void DrawShadow();
     void init();
     void setup();
     void update();
@@ -88,7 +81,9 @@ class clear : public BaseScene {
     
 public:
     //ofApp &b;
-    clear(ofApp& a):BaseScene(a){}
+    BaseScene* p;
+    //clear(ofApp& a):BaseScene(a){}
+    clear(ofApp& a, BaseScene* q):BaseScene(a),p(q){}
     
     void setup();
     void update();

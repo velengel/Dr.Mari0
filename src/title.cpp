@@ -2,9 +2,9 @@
 
 #include "title.h"
 #include "ofApp.h"
+#include <chrono>
 
 #define cap(i,j) for(int i=0;i<2;++i)for(int j=0;j<2;++j)
-
 
 void title::setup(){
     keyboard[1].load("Phosphate.ttc",80);
@@ -14,6 +14,9 @@ void title::setup(){
     sounds[2].load("sounds/move.wav");
     sounds[3].load("sounds/erase.wav");
     sounds[4].load("sounds/drop.wav");
+    Nvirus=1;
+    accel=1;
+    scur=0;
 }
 
 void title::update(){
@@ -22,8 +25,6 @@ void title::update(){
 
 void title::draw(){
     ofBackground(0, 0, 0);
-    
-    
     for ( int i = 0; i < ofGetWidth(); i+=step ){
         for ( int j=0; j < ofGetHeight(); j+=step){
             ofColor c;
@@ -33,15 +34,32 @@ void title::draw(){
         }
     }
     keyboard[1].drawString("Dr.MARI0",100,200);
-    keyboard[1].drawString("PRESS 2 key to play",10,400);
+    keyboard[1].drawString("PRESS 2 key to play",10,300);
+    ofDrawRectangle(50, 370+100*scur, 40, 40);
+    keyboard[0].drawString("virus num : "+ofToString(Nvirus),100,400);
+    keyboard[0].drawString("Speed : "+ofToString(accel),100,500);
 }
 
 void title::keyPressed(int key){
-    //if(key=='z')currentScene=1;
+    if(key==OF_KEY_DOWN&&scur<1)scur++;
+    if(key==OF_KEY_UP&&scur>0)scur--;
+    if(key==OF_KEY_RIGHT){
+        if(scur==0&&Nvirus<60){
+            Nvirus++;
+        }else if(scur==1 && accel<10){
+            accel++;
+        }
+    }
+    if(key==OF_KEY_LEFT){
+        if(scur==0&&Nvirus>1){
+            Nvirus--;
+        }else if(scur==1 && accel>1){
+            accel--;
+        }
+    }
 }
 
 void title::keyReleased(int key){
-    
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -53,9 +71,9 @@ void title::keyReleased(int key){
 }*/
 
 void play::retC(int C) {
-    if (C%10 == 1)ofSetColor(255,0,0);
-    else if (C%10 == 2)ofSetColor(255, 255, 0);
-    else if (C%10 == 3)ofSetColor(0, 0, 255);
+    if (C%10 == 1)ofSetColor(255,0,0,255);
+    else if (C%10 == 2)ofSetColor(255, 255, 0,255);
+    else if (C%10 == 3)ofSetColor(0, 0, 255,255);
     else ofSetColor(255, 255, 255);
 }
 
@@ -107,31 +125,32 @@ void play::DrawField() {
 void play::eraseblock(){
     while (1) {
         f2 = true;
-        for (int i = 0; i < 9; ++i) {
+        for (int i = 0; i < 10; ++i) {
             for (int j = 23; j > 0; --j) {
                 if (field[i][j] >= 90)field[i][j] = 0;
             }
         }
-        for (int i = 0; i < 9; ++i) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+        for (int i = 0; i < 10; ++i) {
             for (int j = 23; j > 0; --j) {
                 if (field[i][j] == 0 && field[i][j - 1] != 0 && field[i][j - 1] < 10) {
                     //field[i][j] = 0;
                     field[i][j] = field[i][j - 1];
                     field[i][j - 1] = 0;
                     f2 = false;
+                    
                 }
                 
             }
         }
-        sounds[3].play();
         if (f2)break;
     }
 }
 
-void play::iseraseblock() {
+bool play::iseraseblock() {
     f = false;
     //height
-    for (int i = 0; i < 9; ++i) {
+    for (int i = 0; i < 10; ++i) {
         cnt = 1;
         cl = field[i][0] % 10;
         for (int j = 1; j < 24; ++j) {
@@ -143,7 +162,10 @@ void play::iseraseblock() {
                 if (cnt >= 4) {
                     sco=cnt;
                     for (int k = j - cnt; k < j; k++){
-                        if(field[i][k]>10)sco+=9;
+                        if(field[i][k]>10){
+                            sco+=9;
+                            killednum++;
+                        }
                         field[i][k] = 90+cl;
                         efield[i][k]=1;
                     }
@@ -170,7 +192,10 @@ void play::iseraseblock() {
                 if (cnt >= 4) {
                     sco=cnt;
                     for (int k = i - cnt; k <i; k++){
-                        if(field[k][j]>10)sco+=9;
+                        if(field[k][j]>10){
+                            sco+=9;
+                            killednum++;
+                        }
                         field[k][j] = 90+cl;
                         efield[k][j]=1;
                     }
@@ -184,14 +209,14 @@ void play::iseraseblock() {
         }
     }
     if (f){
-        //eflag=1;
-        //etim=-10000;
-        //while(etim<0)etim+=0.001;
+        chain[0]++;
         eraseblock();
-        tim=-10;
-        etim=10;
-        //eflag=0;
+        tim=-50;
+        etim=50;
+        
+        return true;
     }
+    return false;
 }
 
 void play::createblock(){
@@ -199,7 +224,6 @@ void play::createblock(){
     cap(i,j){
         nowblock[i][j]=nextblock[i][j];
     }
-    
     cap(i,j){
         nextblock[i][j] = Blocks[fibl][i][j];
     }
@@ -207,22 +231,51 @@ void play::createblock(){
     sounds[1].play();
 }
 
+void play::DrawShadow(){
+    int y=by;
+    while (1) {
+        f = false;
+        cap(i, j) {
+            if (nowblock[i][j] && isblock(bx + i * cell, y + j * cell)) {
+                f = true;
+                break;
+            }
+        }
+        if (!f)y += cell;
+        else break;
+    }
+    cap(i,j){
+        retC(nowblock[i][j]);
+        //ofFill();
+        //ofFill();
+        if(nowblock[i][j]!=0)ofDrawRectangle(bx+i*cell, y+j*cell, cell-1, cell-1);
+        //ofFill();
+    }
+}
+
+
 void play::init(){
     for (int i = 0; i < 9; ++i) {
         for (int j = 0; j < 24; ++j) {
             efield[i][j]=0;
         }
     }
+    killednum=0;
+    gauge=0;
+    chain[0]=0;
+    chain[1]=0;
     cnttim=0;
     sounds[1].play();
     score = 0;
-    bx = cell*2;
+    bx = cell*6;
     by = 0;
     tim = 0;
-    Nvirus = 2;
+    Nvirus = p->Nvirus;
     pflag = 0,gflag=0,eflag=0;
+    tflag=0;
     fibl = rand() % 6;
-    accel=1;
+    cntturn=0;
+    accel=p->accel;
     for(int i=0;i<30;++i)for(int j=0;j<30;++j)field[i][j]=0;
     for (int i = 0; i < 9; ++i)field[i][23] = 4;
     
@@ -232,8 +285,40 @@ void play::init(){
     //virus
     for (int i = 0; i < Nvirus; ++i) {
         vx = rand() % 9, vy = rand() % 13+9;
+        if(field[vx][vy]){
+            i--;
+            continue;
+        }
         field[vx][vy] = 11 + i % 3;
     }
+}
+
+void play::nextcap(){
+    chain[1]=chain[0];
+    chain[0]=0;
+    while(iseraseblock()){
+        sounds[3].play();
+        //std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        iseraseblock();
+    }
+    by = 0;
+    bx=cell*6;
+    createblock();
+    cntturn++;
+    gauge++;
+    if(cntturn%10==1){
+        f3=true;
+        while(f3){
+            int vtyp=1+rand()%3;
+            vx = rand() % 9, vy = rand() % 13+9;
+            if(field[vx][vy]){
+                continue;
+            }
+            field[vx][vy] = 10+vtyp;
+            f3=false;
+        }
+    }
+    
 }
 
 void play::cntdispvirus(){
@@ -250,6 +335,7 @@ void play::cntdispvirus(){
     if(f){
         //currentScene=2;
        // *this->ChangeScene(2);
+        tflag=1;
         b.ChangeScene(2);
         //keyboard[0].drawString(ofToString(currentScene), 700+50,250);
     }
@@ -293,20 +379,15 @@ void play::update(){
         }
         if(!f)by += cell;
         else {
+            //instim=100;
             cap(i, j) {
                 if (nowblock[i][j])field[(bx + i * cell - cell*2) / cell][(by + j * cell) / cell] = nowblock[i][j];
             }
-            iseraseblock();
-            by = 0;
-            bx=cell*6;
-            createblock();
+            nextcap();
         }
     }
     if (by > cell*23) {
-        by = 0;
-        bx = cell*6;
-        createblock();
-        iseraseblock();
+        nextcap();
     }
    
 }
@@ -320,6 +401,7 @@ void play::draw(){
     DrawBlocks(400, 50, nextblock);
     ofNoFill();
     ofDrawRectangle(385,35,cell*3,cell*3);
+    DrawShadow();
     ofFill();
     ofSetColor(255, 255, 255);
     ofDrawLine(cell*11, 0, cell*11, cell*23);
@@ -337,7 +419,9 @@ void play::draw(){
     cntdispvirus();
     ofSetColor(255,122,255);
     keyboard[0].drawString("Score : "+ofToString(score), 400,190);
-    //keyboard[0].drawString("tim : "+ofToString(tim), 700,290);
+    //keyboard[0].drawString("chain[0] : "+ofToString(chain[0]), 700,290);
+    keyboard[0].drawString("killednum : "+ofToString(killednum), 700,290);
+    keyboard[0].drawString("chain : "+ofToString(chain[1]), 700,340);
     if(scur>0){
         ofNoFill();
         ofSetColor(255, 255, 255);
@@ -350,22 +434,17 @@ void play::draw(){
         ofBackground(25, 50, 100);
         ofDrawBitmapStringHighlight("Pause", 305, 305);
     }
-    /*if(eflag){
-        etim=-100000;
-        while(etim<0){
-            etim+=0.001;
-            for (int i = 0; i < 9; ++i) {
-                for (int j = 0; j < 24; ++j) {
-                    if (field[i][j] >= 90){
-                        //viruses[3].draw(cell*2 + i * cell, j * cell, cell, cell);
-                        //ofBackground(25, 50, 100,100);
-                        ofSetColor(255, 255, 255);
-                        ofDrawRectangle(cell*2+i*cell, j*cell, cell, cell);
-                    }
-                }
-            }
-        }
-    }*/
+    if(gauge<20){
+        ofSetColor(100, 255, 100);
+        ofDrawRectangle(355,705,20*gauge,30);
+        ofNoFill();
+        ofDrawRectangle(355,705,20*20,30);
+        ofFill();
+    }else{
+        ofSetColor(100, 255, 255);
+        ofDrawRectangle(355,705,20*20,30);
+        keyboard[0].drawString("PRESS C!!", 800,755);
+    }
     if(etim){
         for (int i = 0; i < 9; ++i) {
             for (int j = 0; j < 24; ++j) {
@@ -373,6 +452,7 @@ void play::draw(){
             }
         }
         etim--;
+        
         
     }else{
         for (int i = 0; i < 9; ++i) {
@@ -384,10 +464,10 @@ void play::draw(){
     if(gflag){
         ofBackground(175, 175, 175);
         keyboard[1].drawString("GAME OVER",100,200);
-        keyboard[1].drawString("PRESS 2 key to caplay",10,400);
+        keyboard[1].drawString("PRESS 2 key to replay",10,400);
     }
     if(!tflag)cnttim++;
-    keyboard[0].drawString("Time : "+ofToString(cnttim/60), 650,190);
+    if(!gflag)keyboard[0].drawString("Time : "+ofToString(cnttim/60), 650,190);
     
     
 }
@@ -419,6 +499,30 @@ void play::keyPressed(int key){
     if(key=='t'){
         tflag++;
         tflag%=2;
+    }
+    if(key == 'c' && !pflag && gauge>=20){
+        int vvy=0;
+        f3=false;
+        for(int i=0;i<10;++i){
+            for(int j=23;j>=0;--j){
+                if(field[i][j]>10 ){
+                    f3=true;
+                    vvy=j;
+                    break;
+                    
+                }
+            }
+            if(f3)break;
+        }
+        for(int i=0;i<10;++i){
+            field[i][vvy]=91;
+            efield[i][vvy]=1;
+        }
+        eraseblock();
+        gauge=0;
+        sounds[3].play();
+        score+=1000;
+        etim=50;
     }
     if(key == 'x' && !pflag){
         for(int i=0;i<3;++i)rotB();
@@ -497,10 +601,8 @@ void play::keyPressed(int key){
         cap(i, j) {
             if (nowblock[i][j])field[(bx + i * cell - cell*2) / cell][(by + j * cell) / cell] = nowblock[i][j];
         }
-        iseraseblock();
-        by = 0;
-        bx = cell*6;
-        createblock();
+        nextcap();
+        
     }
     if(key=='2' && gflag){
         gflag=0;
@@ -524,10 +626,13 @@ void play::keyReleased(int key){
 void clear::setup(){
     keyboard[1].load("Phosphate.ttc",80);
     keyboard[1].setSpaceSize(40.0);
+    
 }
 
 void clear::update(){
-    
+    score=p->score;
+    cnttim=p->cnttim;
+    killednum=p->killednum;
 }
 
 void clear::draw(){
@@ -543,6 +648,9 @@ void clear::draw(){
         }
     }
     keyboard[1].drawString("Clear",100,200);
+    keyboard[0].drawString("Score : " + ofToString(score), 100,300);
+    keyboard[0].drawString("Time : " + ofToString(cnttim/60), 100,400);
+    keyboard[0].drawString("Killednum : " + ofToString(killednum), 100,500);
 }
 
 void clear::keyPressed(int key){

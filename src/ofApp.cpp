@@ -11,11 +11,11 @@ void ofApp::setup(){
     stitle->setup();
     scenes.push_back(stitle);
     
-    BaseScene *splay = new play(*this);
+    BaseScene *splay = new play(*this, stitle);
     splay->setup();
     scenes.push_back(splay);
     
-    BaseScene *sclear = new clear(*this);
+    BaseScene *sclear = new clear(*this, splay);
     sclear->setup();
     scenes.push_back(sclear);
     
@@ -40,6 +40,7 @@ void ofApp::keyPressed(int key){
             break;
             
         case '2':
+            scenes[currentScene]->init();
             ChangeScene(1);
             //currentScene=1;
             
