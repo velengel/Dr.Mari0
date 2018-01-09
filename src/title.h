@@ -52,6 +52,7 @@ class play : public BaseScene {
     int virusnum[3];
     int chain[2];
     int cntturn=0;
+    int loc=0;
     int gauge=0;
 public:
     //ofApp &b;
@@ -61,7 +62,7 @@ public:
     void nextcap();
     void retC(int C);
     void DrawBlocks(int x, int y, int ablock[][2]);
-    void rotB();
+    void rotB(int a);
     bool isblock(int x, int y);
     void DrawField();
     void eraseblock();

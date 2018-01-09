@@ -14,9 +14,13 @@ void title::setup(){
     sounds[2].load("sounds/move.wav");
     sounds[3].load("sounds/erase.wav");
     sounds[4].load("sounds/drop.wav");
+    sounds[5].load("sounds/re.wav");
+    sounds[6].load("sounds/2chain.wav");
+    sounds[7].load("sounds/3chain.wav");
     Nvirus=1;
     accel=1;
     scur=0;
+    virusdis=30;
 }
 
 void title::update(){
@@ -28,34 +32,45 @@ void title::draw(){
     for ( int i = 0; i < ofGetWidth(); i+=step ){
         for ( int j=0; j < ofGetHeight(); j+=step){
             ofColor c;
-            c.setHsb( hue, ofMap(i, ofGetWidth(),-ofGetWidth()/2, 0,128), ofMap(j, -ofGetHeight()/4,ofGetHeight()/4, 0,128 ) );
+            c.setHsb( hue, ofMap(i, ofGetWidth(),-ofGetWidth()/2,0, 100), ofMap(j, -ofGetHeight()/4,ofGetHeight()/4,0,100 ) );
             ofSetColor( c );
             ofRect( i, j, step-1, step-1 );
         }
     }
-    keyboard[1].drawString("Dr.MARI0",100,200);
-    keyboard[1].drawString("PRESS 2 key to play",10,300);
-    ofDrawRectangle(50, 370+100*scur, 40, 40);
-    keyboard[0].drawString("virus num : "+ofToString(Nvirus),100,400);
-    keyboard[0].drawString("Speed : "+ofToString(accel),100,500);
+    keyboard[1].drawString("Dr.MARI0",100,80);
+    keyboard[1].drawString("PRESS 2 key to play",100,150);
+    ofDrawRectangle(50, 170+80*scur, 40, 40);
+    ofSetColor(255,110,255);
+    keyboard[0].drawString("virus num : "+ofToString(Nvirus),100,200);
+    keyboard[0].drawString("Speed : "+ofToString(accel),100,280);
+    keyboard[0].drawString("virus interval : "+ofToString(virusdis),100,360);
+    ofSetColor(50,50,50);
+    ofDrawRectangle(100,400,800,300);
+    ofSetColor(110,255,255);
+    keyboard[0].drawString("More than four color cells line up, ",130,450);
+    keyboard[0].drawString("Then they disappeared!!",130,550);
+    keyboard[0].drawString("Erase All Viruses!!",130,650);
+    
 }
 
 void title::keyPressed(int key){
-    if(key==OF_KEY_DOWN&&scur<1)scur++;
+    if(key==OF_KEY_DOWN&&scur<2)scur++;
     if(key==OF_KEY_UP&&scur>0)scur--;
     if(key==OF_KEY_RIGHT){
-        if(scur==0&&Nvirus<60){
-            Nvirus++;
+        if(scur==0&&Nvirus<80){
+            Nvirus+=3;
         }else if(scur==1 && accel<10){
             accel++;
+        }else if(scur==2 && virusdis<100){
+            virusdis+=5;
         }
     }
     if(key==OF_KEY_LEFT){
         if(scur==0&&Nvirus>1){
-            Nvirus--;
+            Nvirus-=3;
         }else if(scur==1 && accel>1){
             accel--;
-        }
+        }else if(scur==2 && virusdis>5)virusdis-=5;
     }
 }
 
@@ -73,7 +88,10 @@ void title::keyReleased(int key){
 void play::retC(int C) {
     if (C%10 == 1)ofSetColor(255,0,0,255);
     else if (C%10 == 2)ofSetColor(255, 255, 0,255);
-    else if (C%10 == 3)ofSetColor(0, 0, 255,255);
+    else if (C%10 == 3){
+        //ofSetColor(0, 0, 255,255);
+        ofSetColor(157,204,224);
+    }
     else ofSetColor(255, 255, 255);
 }
 
@@ -85,12 +103,28 @@ void play::DrawBlocks(int x, int y, int ablock[][2]) {
 }
 
 //rotation block
-void play::rotB() {
-    rotblock[0][1] = nowblock[0][0];
-    rotblock[1][1] = nowblock[0][1];
-    rotblock[1][0] = nowblock[1][1];
-    rotblock[0][0] = nowblock[1][0];
-    cap(i,j)nowblock[i][j] = rotblock[i][j];
+void play::rotB(int a) {
+    if(a==0){
+        rotblock[0][1] = nowblock[0][0];
+        rotblock[1][1] = nowblock[0][1];
+        rotblock[1][0] = nowblock[1][1];
+        rotblock[0][0] = nowblock[1][0];
+        cap(i,j)nowblock[i][j] = rotblock[i][j];//*/
+        /*if(nowblock[0][1]!=0)swap(nowblock[0][1],nowblock[1][0]);
+         else{
+         rotblock[0][0] = nowblock[0][1];
+         rotblock[1][0] = nowblock[1][1];
+         rotblock[1][1] = nowblock[1][0];
+         rotblock[0][1] = nowblock[0][0];
+         cap(i,j)nowblock[i][j] = rotblock[i][j];
+         }*/
+    }else if(a==1){
+        rotblock[0][1] = nextblock[0][0];
+        rotblock[1][1] = nextblock[0][1];
+        rotblock[1][0] = nextblock[1][1];
+        rotblock[0][0] = nextblock[1][0];
+        cap(i,j)nextblock[i][j] = rotblock[i][j];//*/
+    }
 }
 
 bool play::isblock(int x, int y) {
@@ -108,7 +142,9 @@ void play::DrawField() {
                     ofDrawRectangle(cell*2 + i * cell, j * cell, cell, cell);
                 }else if(field[i][j]<20){
                     //ofDrawCircle(cell*2 + i * cell+cell/2, j * cell+cell/2,cell/2);
+                    if(field[i][j]==13)ofSetColor(255,255,255);
                     viruses[field[i][j]%10-1].draw(cell*2 + i * cell,j * cell,cell,cell);
+                    
                 }else{
                     if (tim<0 && field[i][j] >= 90)viruses[3].draw(cell*2 + i * cell, j * cell, cell, cell);
                 }
@@ -227,7 +263,18 @@ void play::createblock(){
     cap(i,j){
         nextblock[i][j] = Blocks[fibl][i][j];
     }
-    if(field[4][0]+field[4][1]>0)gflag=1;
+    //if(field[4][0]+field[4][1]>0)gflag=1;
+    cap(i,j){
+        if(nowblock[i][j] && isblock(bx+i*cell,by+j*cell-cell))gflag=1;
+    }
+    if(gauge%2==0){
+        rotB(1);rotB(1);
+        loc=1;
+        //bx+=cell;
+    }else{
+        loc=0;
+        bx-=cell;
+    }
     sounds[1].play();
 }
 
@@ -270,6 +317,7 @@ void play::init(){
     bx = cell*6;
     by = 0;
     tim = 0;
+    loc=0;
     Nvirus = p->Nvirus;
     pflag = 0,gflag=0,eflag=0;
     tflag=0;
@@ -294,6 +342,8 @@ void play::init(){
 }
 
 void play::nextcap(){
+    if(chain[0]==2)sounds[6].play();
+    if(chain[0]==3)sounds[7].play();
     chain[1]=chain[0];
     chain[0]=0;
     while(iseraseblock()){
@@ -306,7 +356,7 @@ void play::nextcap(){
     createblock();
     cntturn++;
     gauge++;
-    if(cntturn%10==1){
+    if(cntturn%virusdis==1){
         f3=true;
         while(f3){
             int vtyp=1+rand()%3;
@@ -318,6 +368,7 @@ void play::nextcap(){
             f3=false;
         }
     }
+    
     
 }
 
@@ -342,6 +393,7 @@ void play::cntdispvirus(){
     for(int i=0;i<3;++i){
         retC(i+1);
         //ofSetColor(255,122,255);
+        if(i==2)ofSetColor(255,255,255);
         keyboard[0].drawString(ofToString(virusnum[i]), 400+50,250+i*50);
         viruses[i].draw(400,222+i*50,cell,cell);
     }
@@ -398,7 +450,7 @@ void play::draw(){
     ofBackground(75, 75, 75);
     DrawField();
     DrawBlocks(bx, by, nowblock);
-    DrawBlocks(400, 50, nextblock);
+    DrawBlocks(400-cell*loc, 50, nextblock);
     ofNoFill();
     ofDrawRectangle(385,35,cell*3,cell*3);
     DrawShadow();
@@ -415,6 +467,7 @@ void play::draw(){
     keyboard[0].drawString("Right Arrow : Right Move", 400,260+300);
     keyboard[0].drawString("Up Arrow   : Hard Drop", 400,300+300);
     keyboard[0].drawString("Down Arrow : Soft Drop", 400,340+300);
+    keyboard[0].drawString("     C     :  ??????", 400,380+300);
     
     cntdispvirus();
     ofSetColor(255,122,255);
@@ -428,22 +481,18 @@ void play::draw(){
         ofDrawRectangle(400,105+40*(scur-2)+300,500,40);
         ofFill();
     }
-    //pause
     
-    if(pflag){
-        ofBackground(25, 50, 100);
-        ofDrawBitmapStringHighlight("Pause", 305, 305);
-    }
     if(gauge<20){
         ofSetColor(100, 255, 100);
-        ofDrawRectangle(355,705,20*gauge,30);
+        ofDrawRectangle(500,50,20*gauge,30);
         ofNoFill();
-        ofDrawRectangle(355,705,20*20,30);
+        ofDrawRectangle(500,50,20*20,30);
         ofFill();
     }else{
-        ofSetColor(100, 255, 255);
-        ofDrawRectangle(355,705,20*20,30);
-        keyboard[0].drawString("PRESS C!!", 800,755);
+        if(tim<500)ofSetColor(100, 255, 255);
+        else ofSetColor(100, 0, 100);
+        ofDrawRectangle(500,50,20*20,30);
+        keyboard[0].drawString("PRESS C!!", 500,120);
     }
     if(etim){
         for (int i = 0; i < 9; ++i) {
@@ -466,22 +515,31 @@ void play::draw(){
         keyboard[1].drawString("GAME OVER",100,200);
         keyboard[1].drawString("PRESS 2 key to replay",10,400);
     }
-    if(!tflag)cnttim++;
-    if(!gflag)keyboard[0].drawString("Time : "+ofToString(cnttim/60), 650,190);
+    if(!tflag && !pflag)cnttim++;
+    if(!gflag){
+        ofSetColor(200,100,50);
+        keyboard[0].drawString("Time : "+ofToString(cnttim/60), 750,190);
+    }
+    //pause
     
-    
+    if(pflag){
+        //ofBackground(25, 50, 100);
+        ofSetColor(25,50,25);
+        ofDrawRectangle(0,0,cell*11,cell*30);
+        ofDrawBitmapStringHighlight("Pause", 105, 305);
+    }
 }
 
 //--------------------------------------------------------------
 void play::keyPressed(int key){
     if(key == 'z' && !pflag){
         scur=1;
-        rotB();
+        rotB(0);
         f3 = false;
         cap(i, j) {
             if (nowblock[i][j] && field[(bx + i * cell - cell*2) / cell][(by + j * cell) / cell])f3 = true;
         }
-        if (f3)for (int i = 0; i < 3; ++i)rotB();
+        if (f3)for (int i = 0; i < 3; ++i)rotB(0);
         else {
             f = false, f2 = false;
             cap(i, j) {
@@ -501,37 +559,53 @@ void play::keyPressed(int key){
         tflag%=2;
     }
     if(key == 'c' && !pflag && gauge>=20){
+        scur=8;
         int vvy=0;
         f3=false;
-        for(int i=0;i<10;++i){
+        while(1){
+            int i=rand()%10,j=rand()%23;
+                if(field[i][j]>10 ){
+                    f3=true;
+                    vvy=j;
+                    
+                    break;
+                    
+                }
+            
+            //if(f3)break;
+        }
+        /*for(int i=0;i<10;++i){
             for(int j=23;j>=0;--j){
                 if(field[i][j]>10 ){
                     f3=true;
                     vvy=j;
+                    
                     break;
                     
                 }
             }
             if(f3)break;
-        }
+        }//*/
         for(int i=0;i<10;++i){
+            if(field[i][vvy]>10)killednum++;
             field[i][vvy]=91;
             efield[i][vvy]=1;
+            
         }
         eraseblock();
         gauge=0;
-        sounds[3].play();
+        sounds[5].play();
         score+=1000;
         etim=50;
     }
     if(key == 'x' && !pflag){
-        for(int i=0;i<3;++i)rotB();
+        for(int i=0;i<3;++i)rotB(0);
         scur=2;
         f3 = false;
         cap(i, j) {
             if (nowblock[i][j] && field[(bx + i * cell - cell*2) / cell][(by + j * cell) / cell])f3 = true;
         }
-        if (f3)rotB();
+        if (f3)rotB(0);
         else {
             f = false, f2 = false;
             cap(i, j) {
@@ -612,7 +686,7 @@ void play::keyPressed(int key){
 
 void play::keyReleased(int key){
     scur=0;
-    if(key == OF_KEY_DOWN && !pflag)accel=1;
+    if(key == OF_KEY_DOWN && !pflag)accel=p->accel;
     if(key == 'z'){
         //scur=0;
         

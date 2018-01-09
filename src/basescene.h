@@ -24,6 +24,7 @@ public:
     int score,cnt, cl, sco;
     int killednum=0;
     int scur;
+    int virusdis=10;
     ofApp &b;
     //BaseScene& p;
     //仮想関数 (virtual) として定義する

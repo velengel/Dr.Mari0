@@ -48,7 +48,7 @@ void ofApp::keyPressed(int key){
             break;
             
         case '3':
-            ChangeScene(2);
+            //ChangeScene(2);
             //currentScene=2;
             
             break;
