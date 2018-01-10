@@ -39,22 +39,31 @@ void title::draw(){
     }
     keyboard[1].drawString("Dr.MARI0",100,80);
     keyboard[1].drawString("PRESS 2 key to play",100,150);
-    ofDrawRectangle(50, 170+80*scur, 40, 40);
+    //ofDrawRectangle(50, 170+80*scur, 40, 40);
+    viruses[scur%3].draw(50,170+80*scur,40,40);
     ofSetColor(255,110,255);
     keyboard[0].drawString("virus num : "+ofToString(Nvirus),100,200);
     keyboard[0].drawString("Speed : "+ofToString(accel),100,280);
     keyboard[0].drawString("virus interval : "+ofToString(virusdis),100,360);
+    keyboard[0].drawString("time limit : "+ofToString(limittim),100,440);
     ofSetColor(50,50,50);
-    ofDrawRectangle(100,400,800,300);
+    ofDrawRectangle(100,400+70,800,280);
+    
     ofSetColor(110,255,255);
-    keyboard[0].drawString("More than four color cells line up, ",130,450);
-    keyboard[0].drawString("Then they disappeared!!",130,550);
-    keyboard[0].drawString("Erase All Viruses!!",130,650);
+    for(int i=0;i<3;++i){
+        if(i==0)ofSetColor(255,0,0);
+        else if(i==1)ofSetColor(255, 255, 0);
+        else ofSetColor(157,204,224);
+        viruses[i].draw(130,490+100*i,40,40);
+    }
+    keyboard[0].drawString("More than four color cells line up, ",180,450+70);
+    keyboard[0].drawString("Then they disappeared!!",180,550+70);
+    keyboard[0].drawString("Erase All Viruses!!",180,650+70);
     
 }
 
 void title::keyPressed(int key){
-    if(key==OF_KEY_DOWN&&scur<2)scur++;
+    if(key==OF_KEY_DOWN&&scur<3)scur++;
     if(key==OF_KEY_UP&&scur>0)scur--;
     if(key==OF_KEY_RIGHT){
         if(scur==0&&Nvirus<80){
@@ -63,6 +72,8 @@ void title::keyPressed(int key){
             accel++;
         }else if(scur==2 && virusdis<100){
             virusdis+=5;
+        }else if(scur==3 && limittim<600){
+            limittim+=10;
         }
     }
     if(key==OF_KEY_LEFT){
@@ -70,7 +81,11 @@ void title::keyPressed(int key){
             Nvirus-=3;
         }else if(scur==1 && accel>1){
             accel--;
-        }else if(scur==2 && virusdis>5)virusdis-=5;
+        }else if(scur==2 && virusdis>5){
+            virusdis-=5;
+        }else if(scur==3 && limittim>10){
+            limittim-=10;
+        }
     }
 }
 
@@ -142,7 +157,7 @@ void play::DrawField() {
                     ofDrawRectangle(cell*2 + i * cell, j * cell, cell, cell);
                 }else if(field[i][j]<20){
                     //ofDrawCircle(cell*2 + i * cell+cell/2, j * cell+cell/2,cell/2);
-                    if(field[i][j]==13)ofSetColor(255,255,255);
+                    //if(field[i][j]==13)ofSetColor(255,255,255);
                     viruses[field[i][j]%10-1].draw(cell*2 + i * cell,j * cell,cell,cell);
                     
                 }else{
@@ -307,6 +322,8 @@ void play::init(){
             efield[i][j]=0;
         }
     }
+    virusdis=p->virusdis;
+    limittim=p->limittim;
     killednum=0;
     gauge=0;
     chain[0]=0;
@@ -393,7 +410,7 @@ void play::cntdispvirus(){
     for(int i=0;i<3;++i){
         retC(i+1);
         //ofSetColor(255,122,255);
-        if(i==2)ofSetColor(255,255,255);
+        //if(i==2)ofSetColor(255,255,255);
         keyboard[0].drawString(ofToString(virusnum[i]), 400+50,250+i*50);
         viruses[i].draw(400,222+i*50,cell,cell);
     }
@@ -517,8 +534,14 @@ void play::draw(){
     }
     if(!tflag && !pflag)cnttim++;
     if(!gflag){
-        ofSetColor(200,100,50);
-        keyboard[0].drawString("Time : "+ofToString(cnttim/60), 750,190);
+        if(limittim-cnttim/60<11 && tim<500){
+            ofSetColor(250,250,50);
+            ofDrawRectangle(720,120,220,100);
+        }
+        ofSetColor(250,100,50);
+        
+        keyboard[0].drawString("Time : "+ofToString(limittim-cnttim/60), 750,190);
+        if(limittim-cnttim/60<1)gflag=1;
     }
     //pause
     
@@ -723,7 +746,7 @@ void clear::draw(){
     }
     keyboard[1].drawString("Clear",100,200);
     keyboard[0].drawString("Score : " + ofToString(score), 100,300);
-    keyboard[0].drawString("Time : " + ofToString(cnttim/60), 100,400);
+    keyboard[0].drawString("The Time required : " + ofToString(cnttim/60), 100,400);
     keyboard[0].drawString("Killednum : " + ofToString(killednum), 100,500);
 }
 

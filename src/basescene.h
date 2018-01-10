@@ -25,6 +25,7 @@ public:
     int killednum=0;
     int scur;
     int virusdis=10;
+    int limittim=300;
     ofApp &b;
     //BaseScene& p;
     //仮想関数 (virtual) として定義する
