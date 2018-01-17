@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+	<string>QuickTime</string>
+	<string>AVFoundation</string>
+	<string>OpenGL</string>
+	<string>CoreVideo</string>
+	<string>Quartz</string>
+	<string>OpenGLES</string>
+	<string>CoreData</string>
+	<string>QTKit</string>
+	<string>AppKit</string>
+	<string>Foundation</string>
+	<string>Accelerate</string>
+	<string>Cocoa</string>
+	<string>CoreMedia</string>
+</array>
+</plist>

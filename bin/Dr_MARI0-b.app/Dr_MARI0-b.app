@@ -1,0 +1,1 @@
+/Users/kou/Documents/of_v0.9.8_osx_release/apps/myApps/Dr_MARI0-b/DerivedData/Dr_MARI0-b/Build/Intermediates.noindex/ArchiveIntermediates/Dr_MARI0 Release/InstallationBuildProductsLocation/Applications/Dr_MARI0-b.app
