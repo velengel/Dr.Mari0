@@ -9,14 +9,15 @@
 void title::setup(){
     keyboard[1].load("Phosphate.ttc",80);
     keyboard[1].setSpaceSize(40.0);
-    sounds[0].load("sounds/rot.wav");
-    sounds[1].load("sounds/set.wav");
-    sounds[2].load("sounds/move.wav");
-    sounds[3].load("sounds/erase.wav");
-    sounds[4].load("sounds/drop.wav");
-    sounds[5].load("sounds/re.wav");
-    sounds[6].load("sounds/2chain.wav");
-    sounds[7].load("sounds/3chain.wav");
+    sounds[0].load("./sounds/rot.wav");
+    sounds[1].load("./sounds/set.wav");
+    sounds[2].load("./sounds/move.wav");
+    sounds[3].load("./sounds/erase.wav");
+    sounds[4].load("./sounds/drop.wav");
+    sounds[5].load("./sounds/re.wav");
+    sounds[6].load("./sounds/2chain.wav");
+    sounds[7].load("./sounds/3chain.wav");
+    sounds[8].load("./sounds/vsvirus.wav");
     Nvirus=1;
     accel=1;
     scur=0;
@@ -234,7 +235,7 @@ bool play::iseraseblock() {
     for (int j = 0; j <23; ++j){
         cnt = 1;
         cl = field[0][j] % 10;
-        for (int i = 1; i < 10; ++i) {
+        for (int i = 1; i < 11; ++i) {
             
             if (field[i][j] % 10 == cl && field[i][j] ) {
                 cnt++;
@@ -322,6 +323,9 @@ void play::init(){
             efield[i][j]=0;
         }
     }
+  sounds[8].setSpeed(1.0);
+  sounds[8].play();
+  sounds[8].setLoop(1);
     virusdis=p->virusdis;
     limittim=p->limittim;
     killednum=0;
@@ -425,10 +429,10 @@ void play::setup(){
     ofSetWindowPosition(150, 100);
     
     init();
-    viruses[0].load("images/rvirus.png");
-    viruses[1].load("images/yvirus.png");
-    viruses[2].load("images/bvirus.png");
-    viruses[3].load("images/erase.png");
+    viruses[0].load("./images/rvirus.png");
+    viruses[1].load("./images/yvirus.png");
+    viruses[2].load("./images/bvirus.png");
+    viruses[3].load("./images/erase.png");
     ofTrueTypeFont::setGlobalDpi(72);
     keyboard[0].load("Tahoma.ttf",36);
     keyboard[0].setSpaceSize(20.0);
@@ -534,9 +538,10 @@ void play::draw(){
     }
     if(!tflag && !pflag)cnttim++;
     if(!gflag){
-        if(limittim-cnttim/60<11 && tim<500){
+        if(limittim-cnttim/60<101 && tim<500){
             ofSetColor(250,250,50);
             ofDrawRectangle(720,120,220,100);
+          sounds[8].setSpeed(1.2);
         }
         ofSetColor(250,100,50);
         

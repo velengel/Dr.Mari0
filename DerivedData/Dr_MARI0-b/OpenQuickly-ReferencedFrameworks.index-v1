@@ -12,8 +12,8 @@
 	<string>QTKit</string>
 	<string>AppKit</string>
 	<string>Foundation</string>
-	<string>Accelerate</string>
 	<string>Cocoa</string>
+	<string>Accelerate</string>
 	<string>CoreMedia</string>
 </array>
 </plist>
