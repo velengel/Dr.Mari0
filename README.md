@@ -32,20 +32,27 @@
 -   `↓` キー: ソフトドロップ（カプセルの落下速度を上げる）
 -   `Z` または `X` キー: カプセルの回転（色も入れ替わります）
 
+## テストの実行方法
+
+このプロジェクトはQUnitによる単体テストを備えています。テストを実行するには、ローカルWebサーバーを起動し、ブラウザでテストページにアクセスする必要があります。
+
+1.  プロジェクトのルートディレクトリで、以下のコマンドを実行してWebサーバーを起動します。
+    ```bash
+    python3 -m http.server
+    ```
+2.  Webサーバーが起動したら、ブラウザで `http://localhost:8000/tests/test-runner.html` にアクセスしてください。
+
 ## プロジェクト構造
 
--   `new/`: p5.jsリメイクプロジェクトのルートディレクトリ
-    -   `index.html`: ゲームのエントリーポイントとなるHTMLファイル
-    -   `sketch.js`: すべてのゲームロジック、描画、p5.jsのライフサイクル関数を含むメインスクリプト
-    -   `assets/`: ゲームで使用するアセット（画像、サウンド）
-        -   `images/`: ウイルス画像 (`rvirus.png`, `yvirus.png`, `bvirus.png`)
-        -   `sounds/`: 効果音とBGM (`vsvirus.wav`, `move.wav`, `rot.wav`, `set.wav`, `erase.wav`)
-    -   `favicon.png`: ブラウザのタブに表示されるアイコン
-    -   `tests/`: 単体テスト関連ファイル
-        -   `test-runner.html`: QUnitテストを実行するためのHTMLファイル
-        -   `tests.js`: ゲームロジックの単体テストコード
+-   `docs/`: GitHub Pagesで公開されるWeb関連ファイル一式。
+    -   `index.html`: ゲームのエントリーポイントとなるHTMLファイル。
+    -   `sketch.js`: ゲームのロジック、描画などを含むメインスクリプト。
+    -   `assets/`: ゲームで使用する画像や音声ファイル。
+-   `old/`: 旧バージョンであるopenFrameworks(C++)のソースコード一式。
+-   `tests/`: QUnitによる単体テスト関連のファイル。
+-   `dialy/`: 作業日報ファイル。
 
 ## 開発ノート
 
 -   **フレームワーク:** [p5.js](https://p5js.org/) を使用しています。
--   **テスト:** [QUnit](https://qunitjs.com/) を使用して、主要なゲームロジックの単体テストを実装しています。テストは `new/tests/test-runner.html` で実行できます。
+-   **テスト:** [QUnit](https://qunitjs.com/) を使用して、主要なゲームロジックの単体テストを実装しています。

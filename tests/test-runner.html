@@ -10,8 +10,13 @@
   <div id="qunit-fixture"></div>
   <script src="https://code.jquery.com/qunit/qunit-2.19.1.js"></script>
 
-  <!-- Load the consolidated game script -->
-  <script src="../sketch.js"></script>
+  <!-- Define a base path for assets for the test environment -->
+  <script>
+    const ASSET_BASE_PATH = '../docs/';
+  </script>
+
+  <!-- Load the consolidated game script from its new location -->
+  <script src="../docs/sketch.js"></script>
 
   <!-- Load the tests -->
   <script src="tests.js"></script>

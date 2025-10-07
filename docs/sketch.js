@@ -44,17 +44,21 @@ let images = {};
 // -----------------------------------
 
 function preload() {
+    // Define a base path for assets. This will be an empty string for the main game
+    // but will be set to '../docs/' in the test environment.
+    const basePath = typeof ASSET_BASE_PATH !== 'undefined' ? ASSET_BASE_PATH : '';
+
     soundFormats('wav');
-    sounds.bgm = loadSound('assets/sounds/vsvirus');
-    sounds.move = loadSound('assets/sounds/move');
-    sounds.rotate = loadSound('assets/sounds/rot');
-    sounds.land = loadSound('assets/sounds/set');
-    sounds.clear = loadSound('assets/sounds/erase');
+    sounds.bgm = loadSound(basePath + 'assets/sounds/vsvirus.wav');
+    sounds.move = loadSound(basePath + 'assets/sounds/move.wav');
+    sounds.rotate = loadSound(basePath + 'assets/sounds/rot.wav');
+    sounds.land = loadSound(basePath + 'assets/sounds/set.wav');
+    sounds.clear = loadSound(basePath + 'assets/sounds/erase.wav');
 
     images.viruses = {
-        1: loadImage('assets/images/rvirus.png'),
-        2: loadImage('assets/images/yvirus.png'),
-        3: loadImage('assets/images/bvirus.png'),
+        1: loadImage(basePath + 'assets/images/rvirus.png'),
+        2: loadImage(basePath + 'assets/images/yvirus.png'),
+        3: loadImage(basePath + 'assets/images/bvirus.png'),
     };
 }
 

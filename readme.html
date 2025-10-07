@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Dr. Mari0 - README</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css">
+    <style>
+        body {
+            box-sizing: border-box;
+            min-width: 200px;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 45px;
+        }
+    </style>
+</head>
+<body class="markdown-body">
+    <div id="content"></div>
+
+    <!-- Include Marked.js from a CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        // Fetch the README.md file
+        fetch('README.md')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.text();
+            })
+            .then(text => {
+                // Convert Markdown to HTML and insert it into the 'content' div
+                document.getElementById('content').innerHTML = marked.parse(text);
+            })
+            .catch(err => {
+                console.error('Error fetching or rendering README.md:', err);
+                document.getElementById('content').innerText = 'Error loading README.md. Please check the console for details.';
+            });
+    </script>
+</body>
+</html>
