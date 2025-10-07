@@ -4,6 +4,3 @@
 # Build artifacts
 bin/
 DerivedData/
-
-# Daily reports
-dialy_*.md
