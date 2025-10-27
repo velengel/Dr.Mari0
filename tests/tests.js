@@ -21,6 +21,8 @@ QUnit.module('Game Logic (Refactored)', function(hooks) {
     sounds = mockSounds; // Use mock sounds
 
     // Mock p5.js random function for predictable results
+    let randomValues = [1.5, 2.5, 3.5, 1.5]; // -> floor() -> 1, 2, 3, 1
+    let randomCallIndex = 0;
     window.random = function(min, max) {
       if (max === undefined) {
         max = min;
@@ -30,7 +32,9 @@ QUnit.module('Game Logic (Refactored)', function(hooks) {
       if (QUnit.config.current.testName === 'generateRandomCapsule: generates valid capsule') {
         return 1.5; // Always results in color 2
       }
-      return 1.5; // Default to a predictable random
+      const result = randomValues[randomCallIndex % randomValues.length];
+      randomCallIndex++;
+      return result;
     };
     window.floor = Math.floor;
   });
@@ -180,13 +184,13 @@ QUnit.module('Game Logic (Refactored)', function(hooks) {
     capsule.parts = [{x:0,y:0,color:1}, {x:1,y:0,color:2}]; // Horizontal capsule
 
     // Test moving left out of bounds
-    assert.notOk(isValidPosition(-1, 0, capsule.parts, testGrid), 'Cannot move left out of bounds');
+    assert.notOk(isValidPosition(-1, 0, capsule.parts, grid), 'Cannot move left out of bounds');
     // Test moving right out of bounds
-    assert.notOk(isValidPosition(BOARD_WIDTH - 1, 0, capsule.parts, testGrid), 'Cannot move right out of bounds');
+    assert.notOk(isValidPosition(BOARD_WIDTH - 1, 0, capsule.parts, grid), 'Cannot move right out of bounds');
     // Test moving down out of bounds
-    assert.notOk(isValidPosition(0, BOARD_HEIGHT - 1, capsule.parts, testGrid), 'Cannot move down out of bounds');
+    assert.notOk(isValidPosition(0, BOARD_HEIGHT, capsule.parts, grid), 'Cannot move down out of bounds');
     // Test valid position
-    assert.ok(isValidPosition(0, 0, capsule.parts, testGrid), 'Can move to a valid position');
+    assert.ok(isValidPosition(0, 0, capsule.parts, grid), 'Can move to a valid position');
   });
 
   /**
@@ -196,12 +200,12 @@ QUnit.module('Game Logic (Refactored)', function(hooks) {
   QUnit.test('isValidPosition: collision with existing blocks', function(assert) {
     capsule = generateRandomCapsule(); // Need a global capsule
     capsule.parts = [{x:0,y:0,color:1}, {x:1,y:0,color:2}];
-    testGrid[0][0] = 1; // Occupy a cell
+    grid[0][0] = 1; // Occupy a cell
 
-    assert.notOk(isValidPosition(0, 0, capsule.parts, testGrid), 'Cannot move into an occupied cell');
-    testGrid[0][0] = 0; // Clear for next check
-    testGrid[0][1] = 1; // Occupy the second part's position
-    assert.notOk(isValidPosition(0, 0, capsule.parts, testGrid), 'Cannot move into an occupied cell (second part)');
+    assert.notOk(isValidPosition(0, 0, capsule.parts, grid), 'Cannot move into an occupied cell');
+    grid[0][0] = 0; // Clear for next check
+    grid[0][1] = 1; // Occupy the second part's position
+    assert.notOk(isValidPosition(0, 0, capsule.parts, grid), 'Cannot move into an occupied cell (second part)');
   });
 
   /**
