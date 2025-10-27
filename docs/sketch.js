@@ -229,11 +229,6 @@ function rotateCapsule(clockwise) {
 
   let newParts = JSON.parse(JSON.stringify(capsule.parts));
 
-  // Swap colors of the two parts
-  const tempColor = newParts[0].color;
-  newParts[0].color = newParts[1].color;
-  newParts[1].color = tempColor;
-
   // Adjust relative positions based on new orientation
   // The rotationMap defines the relative position of the second part (index 1)
   // with respect to the first part (index 0) for each orientation.

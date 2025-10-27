@@ -281,26 +281,26 @@ QUnit.module('Capsule Management', function() {
       // Rotate 1 (0 -> 1: Down)
       rotateCapsule(true);
       assert.equal(capsule.orientation, 1, 'Orientation should be 1 (Down)');
-      assert.deepEqual(capsule.parts[0], {x:0,y:0,color:initialColor1}, 'Part 0 color should be initial Part 1 color');
-      assert.deepEqual(capsule.parts[1], {x:0,y:1,color:initialColor0}, 'Part 1 is below');
+      assert.deepEqual(capsule.parts[0], {x:0,y:0,color:initialColor0}, 'Part 0 color should remain initial Part 0 color');
+      assert.deepEqual(capsule.parts[1], {x:0,y:1,color:initialColor1}, 'Part 1 color should remain initial Part 1 color and position below');
   
       // Rotate 2 (1 -> 2: Left)
       rotateCapsule(true);
       assert.equal(capsule.orientation, 2, 'Orientation should be 2 (Left)');
-      assert.deepEqual(capsule.parts[0], {x:0,y:0,color:initialColor0}, 'Part 0 color should be initial Part 0 color');
-      assert.deepEqual(capsule.parts[1], {x:-1,y:0,color:initialColor1}, 'Part 1 is to the left');
+      assert.deepEqual(capsule.parts[0], {x:0,y:0,color:initialColor0}, 'Part 0 color should remain initial Part 0 color');
+      assert.deepEqual(capsule.parts[1], {x:-1,y:0,color:initialColor1}, 'Part 1 color should remain initial Part 1 color and position left');
   
       // Rotate 3 (2 -> 3: Up)
       rotateCapsule(true);
       assert.equal(capsule.orientation, 3, 'Orientation should be 3 (Up)');
-      assert.deepEqual(capsule.parts[0], {x:0,y:0,color:initialColor1}, 'Part 0 color should be initial Part 1 color');
-      assert.deepEqual(capsule.parts[1], {x:0,y:-1,color:initialColor0}, 'Part 1 is above');
+      assert.deepEqual(capsule.parts[0], {x:0,y:0,color:initialColor0}, 'Part 0 color should remain initial Part 0 color');
+      assert.deepEqual(capsule.parts[1], {x:0,y:-1,color:initialColor1}, 'Part 1 color should remain initial Part 1 color and position above');
   
       // Rotate 4 (3 -> 0: Right)
       rotateCapsule(true);
       assert.equal(capsule.orientation, 0, 'Orientation should be 0 (Right) again');
-      assert.deepEqual(capsule.parts[0], {x:0,y:0,color:initialColor0}, 'Part 0 color should be initial Part 0 color');
-      assert.deepEqual(capsule.parts[1], {x:1,y:0,color:initialColor1}, 'Part 1 is to the right again');
+      assert.deepEqual(capsule.parts[0], {x:0,y:0,color:initialColor0}, 'Part 0 color should remain initial Part 0 color');
+      assert.deepEqual(capsule.parts[1], {x:1,y:0,color:initialColor1}, 'Part 1 color should remain initial Part 1 color and position right again');
   
       // Test collision during rotation
       capsule.x = 1;
