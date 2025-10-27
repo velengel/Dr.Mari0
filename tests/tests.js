@@ -265,39 +265,52 @@ QUnit.module('Capsule Management', function() {
     assert.equal(capsule.x, 3, 'Capsule should not move into existing block');
   });
 
-  /**
-   * Tests rotateCapsule function.
-   * Ensures capsule rotates through 2 states (horizontal/vertical) and colors swap correctly.
-   */
-  QUnit.test('rotateCapsule: rotates capsule correctly', function(assert) {
-    capsule = { x: 3, y: 0, parts: [{x:0,y:0,color:1}, {x:1,y:0,color:2}], orientation: 0 };
-    const initialColor0 = capsule.parts[0].color;
-    const initialColor1 = capsule.parts[1].color;
-
-    // Rotate 1 (0 -> 1: Vertical)
-    rotateCapsule(true);
-    assert.equal(capsule.orientation, 1, 'Orientation should be 1 (vertical)');
-    assert.deepEqual(capsule.parts[0], {x:0,y:0,color:initialColor1}, 'Part 0 color should be initial Part 1 color');
-    assert.deepEqual(capsule.parts[1], {x:0,y:1,color:initialColor0}, 'Part 1 color should be initial Part 0 color and position vertical');
-
-    // Rotate 2 (1 -> 0: Horizontal)
-    rotateCapsule(true);
-    assert.equal(capsule.orientation, 0, 'Orientation should be 0 (horizontal)');
-    assert.deepEqual(capsule.parts[0], {x:0,y:0,color:initialColor0}, 'Part 0 color should be initial Part 0 color');
-    assert.deepEqual(capsule.parts[1], {x:1,y:0,color:initialColor1}, 'Part 1 color should be initial Part 1 color and position horizontal');
-
-    // Test collision during rotation
-    capsule.x = BOARD_WIDTH - 1; // Move to right edge
-    capsule.orientation = 0;
-    capsule.parts = [{x:0,y:0,color:1}, {x:1,y:0,color:2}];
-    // Block the space where it would rotate into (vertical position for part 1)
-    grid[0][BOARD_WIDTH - 1] = 3;
-    rotateCapsule(true);
-    assert.equal(capsule.orientation, 0, 'Capsule should not rotate if blocked');
-    assert.deepEqual(capsule.parts[0], {x:0,y:0,color:1}, 'Colors should not swap if rotation blocked');
-    assert.deepEqual(capsule.parts[1], {x:1,y:0,color:2}, 'Positions should not change if rotation blocked');
-  });
-});
+    /**
+     * Tests rotateCapsule function.
+     * Ensures capsule rotates through 4 states and colors swap correctly.
+     */
+    QUnit.test('rotateCapsule: rotates capsule through 4 states', function(assert) {
+      capsule = { x: 3, y: 1, parts: [{x:0,y:0,color:1}, {x:1,y:0,color:2}], orientation: 0 };
+      const initialColor0 = capsule.parts[0].color;
+      const initialColor1 = capsule.parts[1].color;
+  
+      // State 0: Right
+      assert.equal(capsule.orientation, 0, 'Starts at orientation 0 (Right)');
+      assert.deepEqual(capsule.parts[1], {x:1,y:0,color:initialColor1}, 'Part 1 is to the right');
+  
+      // Rotate 1 (0 -> 1: Down)
+      rotateCapsule(true);
+      assert.equal(capsule.orientation, 1, 'Orientation should be 1 (Down)');
+      assert.deepEqual(capsule.parts[0], {x:0,y:0,color:initialColor0}, 'Part 0 color should remain initial Part 0 color');
+      assert.deepEqual(capsule.parts[1], {x:0,y:1,color:initialColor1}, 'Part 1 color should remain initial Part 1 color and position below');
+  
+      // Rotate 2 (1 -> 2: Left)
+      rotateCapsule(true);
+      assert.equal(capsule.orientation, 2, 'Orientation should be 2 (Left)');
+      assert.deepEqual(capsule.parts[0], {x:0,y:0,color:initialColor0}, 'Part 0 color should remain initial Part 0 color');
+      assert.deepEqual(capsule.parts[1], {x:-1,y:0,color:initialColor1}, 'Part 1 color should remain initial Part 1 color and position left');
+  
+      // Rotate 3 (2 -> 3: Up)
+      rotateCapsule(true);
+      assert.equal(capsule.orientation, 3, 'Orientation should be 3 (Up)');
+      assert.deepEqual(capsule.parts[0], {x:0,y:0,color:initialColor0}, 'Part 0 color should remain initial Part 0 color');
+      assert.deepEqual(capsule.parts[1], {x:0,y:-1,color:initialColor1}, 'Part 1 color should remain initial Part 1 color and position above');
+  
+      // Rotate 4 (3 -> 0: Right)
+      rotateCapsule(true);
+      assert.equal(capsule.orientation, 0, 'Orientation should be 0 (Right) again');
+      assert.deepEqual(capsule.parts[0], {x:0,y:0,color:initialColor0}, 'Part 0 color should remain initial Part 0 color');
+      assert.deepEqual(capsule.parts[1], {x:1,y:0,color:initialColor1}, 'Part 1 color should remain initial Part 1 color and position right again');
+  
+      // Test collision during rotation
+      capsule.x = 1;
+      capsule.y = 1;
+      capsule.orientation = 0; // Right
+      capsule.parts = [{x:0,y:0,color:1}, {x:1,y:0,color:2}];
+      grid[2][1] = 3; // Block the spot for state 1 (Down)
+      rotateCapsule(true);
+      assert.equal(capsule.orientation, 0, 'Capsule should not rotate if blocked');
+    });});
 
 
 QUnit.module('Game State & Scoring', function() {

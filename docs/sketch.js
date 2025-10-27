@@ -19,6 +19,13 @@ const FALL_SPEED_NORMAL = 30; // Frames per cell drop
 const FALL_SPEED_FAST = 5;
 const VIRUS_COUNT = 10;
 
+const rotationMap = [
+  { x: 1, y: 0 },  // 0: Right
+  { x: 0, y: 1 },  // 1: Down
+  { x: -1, y: 0 }, // 2: Left
+  { x: 0, y: -1 }  // 3: Up
+];
+
 const PILL_COLORS = {
   0: '#333333',
   1: '#FF4141', // Red
@@ -217,29 +224,23 @@ function moveCapsule(xDir, yDir) {
 function rotateCapsule(clockwise) {
   if (!capsule) return;
 
-  // Toggle orientation between 0 (horizontal) and 1 (vertical)
-  const newOrientation = (capsule.orientation + 1) % 2;
+  const direction = clockwise ? 1 : -1;
+  const newOrientation = (capsule.orientation + direction + 4) % 4;
+
   let newParts = JSON.parse(JSON.stringify(capsule.parts));
 
-  // Swap colors of the two parts
-  const tempColor = newParts[0].color;
-  newParts[0].color = newParts[1].color;
-  newParts[1].color = tempColor;
-
   // Adjust relative positions based on new orientation
-  if (newOrientation === 1) { // to Vertical
-      newParts[1].x = 0;
-      newParts[1].y = 1;
-  } else { // to Horizontal
-      newParts[1].x = 1;
-      newParts[1].y = 0;
-  }
+  // The rotationMap defines the relative position of the second part (index 1)
+  // with respect to the first part (index 0) for each orientation.
+  const newPos = rotationMap[newOrientation];
+  newParts[1].x = newPos.x;
+  newParts[1].y = newPos.y;
 
   if (isValidPosition(capsule.x, capsule.y, newParts, grid)) {
       capsule.parts = newParts;
       capsule.orientation = newOrientation;
       sounds.rotate.play();
-  } 
+  }
 }
 
 function isValidPosition(gridX, gridY, parts, targetGrid) {
