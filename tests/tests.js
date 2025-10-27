@@ -4,21 +4,7 @@ let originalCapsule, originalNextCapsule, originalGrid, originalGameState, origi
 let mockSounds = { move: { play: () => {} }, rotate: { play: () => {} }, land: { play: () => {} }, clear: { play: () => {} } };
 
 QUnit.hooks.beforeEach(function() {
-  // Save original global state
-  originalCapsule = capsule;
-  originalNextCapsule = nextCapsule;
-  originalGrid = grid;
-  originalGameState = gameState;
-  originalScore = score;
-
-  // Reset global state for each test
-  capsule = null;
-  nextCapsule = null;
-  grid = Array(BOARD_HEIGHT).fill(0).map(() => Array(BOARD_WIDTH).fill(0));
-  gameState = 'PLAYING';
-  score = 0;
-  sounds = mockSounds; // Use mock sounds
-
+  window.floor = Math.floor; // floorを最初にモック
   // Mock p5.js random function for predictable results
   let randomValues = [1.5, 2.5, 3.5, 1.5]; // -> floor() -> 1, 2, 3, 1
   let randomCallIndex = 0;
@@ -35,7 +21,25 @@ QUnit.hooks.beforeEach(function() {
     randomCallIndex++;
     return result;
   };
-  window.floor = Math.floor;
+
+  // Save original global state
+  originalCapsule = capsule;
+  originalNextCapsule = nextCapsule;
+  originalGrid = grid;
+  originalGameState = gameState;
+  originalScore = score;
+
+  // Reset global state for each test
+  capsule = null;
+  nextCapsule = null;
+  grid = Array(BOARD_HEIGHT).fill(0).map(() => Array(BOARD_WIDTH).fill(0));
+  gameState = 'PLAYING';
+  score = 0;
+  sounds = mockSounds; // Use mock sounds
+
+  window.keyCode = 0; // Mock keyCode
+  window.ENTER = 13; // Mock ENTER key code
+  window.SPACE = 32; // Mock SPACE key code
 });
 
 QUnit.hooks.afterEach(function() {
@@ -49,6 +53,13 @@ QUnit.hooks.afterEach(function() {
   window.random = undefined; // Clear mock
   window.floor = undefined; // Clear mock
 });
+
+// 動作確認用
+// QUnit.module('Sanity Check', function() {
+//   QUnit.test('True is true', function(assert) {
+//     assert.ok(true, 'This test should always pass');
+//   });
+// });
 
 
 QUnit.module('Core Game Mechanics', function() {

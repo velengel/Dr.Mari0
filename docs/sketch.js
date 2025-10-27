@@ -41,7 +41,7 @@ let nextCapsule;
 let grid;
 let fallCounter = 0;
 let fallSpeed = FALL_SPEED_NORMAL;
-let gameState = 'PLAYING'; // PLAYING, GAME_OVER, CLEAR
+let gameState = 'START_SCREEN'; // START_SCREEN, PLAYING, PAUSED, GAME_OVER, CLEAR
 let score = 0;
 let sounds = {};
 let images = {};
@@ -73,33 +73,74 @@ function setup() {
   createCanvas(CANVAS_WIDTH, CANVAS_HEIGHT);
   console.log("Game starting...");
   
-  initializeGrid();
-  nextCapsule = generateRandomCapsule();
-  spawnNewCapsule();
+  // ゲーム開始時はSTART_SCREENなので、初期化処理はENTERキーが押されたときに移動
+  // initializeGrid();
+  // nextCapsule = generateRandomCapsule();
+  // spawnNewCapsule();
 
-  sounds.bgm.loop();
-  sounds.bgm.setVolume(0.3);
+  // sounds.bgm.loop();
+  // sounds.bgm.setVolume(0.3);
 }
 
 function draw() {
   background(51);
-  drawGameBoard();
-  drawGridContent();
-  drawUI();
   
   if (gameState === 'PLAYING') {
+    drawGameBoard();
+    drawGridContent();
+    drawUI();
     handleFalling();
     if (capsule) {
         drawCapsule();
     }
+  } else if (gameState === 'START_SCREEN') {
+    fill(255);
+    textSize(24);
+    textAlign(CENTER, CENTER);
+    text("PRESS ENTER TO START", BOARD_PIXEL_WIDTH / 2+120, CANVAS_HEIGHT / 2);
+  } else if (gameState === 'PAUSED') {
+    drawGameBoard(); // ポーズ画面でもゲームボードは表示
+    drawGridContent(); // ポーズ画面でもグリッド内容は表示
+    drawUI(); // ポーズ画面でもUIは表示
+    drawOverlay("PAUSED", color(0, 0, 0, 150));
   } else if (gameState === 'GAME_OVER') {
     drawOverlay("GAME OVER");
   } else if (gameState === 'CLEAR') {
     drawOverlay("YOU WIN!", color(30, 180, 30, 150));
+    fill(255);
+    textSize(32);
+    textAlign(CENTER, CENTER);
+    text(`SCORE: ${score}`, BOARD_PIXEL_WIDTH / 2, CANVAS_HEIGHT / 2 + 50);
   }
 }
 
 function keyPressed() {
+  if (gameState === 'START_SCREEN') {
+    if (keyCode === ENTER) {
+      gameState = 'PLAYING';
+      initializeGrid(); // ゲーム開始時にグリッドを初期化
+      nextCapsule = generateRandomCapsule(); // 次のカプセルを生成
+      spawnNewCapsule(); // 新しいカプセルをスポーン
+      sounds.bgm.loop(); // BGMを再生
+      sounds.bgm.setVolume(0.3);
+    }
+    return;
+  }
+
+  if (gameState === 'PLAYING') {
+    if (keyCode === 32) {
+      gameState = 'PAUSED';
+      sounds.bgm.pause(); // BGMを一時停止
+      return;
+    }
+  } else if (gameState === 'PAUSED') {
+    if (keyCode === 32) {
+      gameState = 'PLAYING';
+      sounds.bgm.loop(); // BGMを再開
+      return;
+    }
+  }
+
   if (gameState !== 'PLAYING' || !capsule) return;
 
   if (keyCode === LEFT_ARROW) {
@@ -392,12 +433,13 @@ function drawUI() {
     textSize(24);
     textAlign(LEFT, TOP);
 
-    text("SCORE", uiX, 20);
     textSize(32);
+    text("SCORE", uiX, 20);
+    textSize(28);
     text(score, uiX, 50);
 
     text("VIRUS", uiX, 120);
-    textSize(32);
+    textSize(28);
     text(getVirusCount(), uiX, 150);
 
     text("NEXT", uiX, 220);
@@ -411,6 +453,16 @@ function drawUI() {
             rect(nextX + part.x * CELL_SIZE, nextY + part.y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
         }
     }
+
+    // 操作方法の表示
+    textSize(24);
+    fill(255);
+    text("[操作方法]", uiX, 400);
+    textSize(18);
+    text("← → : 移動", uiX, 430);
+    text("↓ : 高速落下", uiX, 460);
+    text("Z/X : 回転", uiX, 490);
+    text("SPACE : ポーズ", uiX, 520);
 }
 
 function drawOverlay(msg, bgColor) {
