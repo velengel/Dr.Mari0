@@ -1,59 +1,60 @@
-QUnit.module('Game Logic (Refactored)', function(hooks) {
+// Global Setup
+// Mock p5.js functions for testing environment
+let originalCapsule, originalNextCapsule, originalGrid, originalGameState, originalScore;
+let mockSounds = { move: { play: () => {} }, rotate: { play: () => {} }, land: { play: () => {} }, clear: { play: () => {} } };
 
-  // Mock p5.js functions for testing environment
-  let originalCapsule, originalNextCapsule, originalGrid, originalGameState, originalScore;
-  let mockSounds = { move: { play: () => {} }, rotate: { play: () => {} }, land: { play: () => {} }, clear: { play: () => {} } };
+QUnit.hooks.beforeEach(function() {
+  // Save original global state
+  originalCapsule = capsule;
+  originalNextCapsule = nextCapsule;
+  originalGrid = grid;
+  originalGameState = gameState;
+  originalScore = score;
 
-  hooks.beforeEach(function() {
-    // Save original global state
-    originalCapsule = capsule;
-    originalNextCapsule = nextCapsule;
-    originalGrid = grid;
-    originalGameState = gameState;
-    originalScore = score;
+  // Reset global state for each test
+  capsule = null;
+  nextCapsule = null;
+  grid = Array(BOARD_HEIGHT).fill(0).map(() => Array(BOARD_WIDTH).fill(0));
+  gameState = 'PLAYING';
+  score = 0;
+  sounds = mockSounds; // Use mock sounds
 
-    // Reset global state for each test
-    capsule = null;
-    nextCapsule = null;
-    grid = Array(BOARD_HEIGHT).fill(0).map(() => Array(BOARD_WIDTH).fill(0));
-    gameState = 'PLAYING';
-    score = 0;
-    sounds = mockSounds; // Use mock sounds
+  // Mock p5.js random function for predictable results
+  let randomValues = [1.5, 2.5, 3.5, 1.5]; // -> floor() -> 1, 2, 3, 1
+  let randomCallIndex = 0;
+  window.random = function(min, max) {
+    if (max === undefined) {
+      max = min;
+      min = 0;
+    }
+    // Return a predictable sequence for testing generateRandomCapsule
+    if (QUnit.config.current.testName === 'generateRandomCapsule: generates valid capsule') {
+      return 1.5; // Always results in color 2
+    }
+    const result = randomValues[randomCallIndex % randomValues.length];
+    randomCallIndex++;
+    return result;
+  };
+  window.floor = Math.floor;
+});
 
-    // Mock p5.js random function for predictable results
-    let randomValues = [1.5, 2.5, 3.5, 1.5]; // -> floor() -> 1, 2, 3, 1
-    let randomCallIndex = 0;
-    window.random = function(min, max) {
-      if (max === undefined) {
-        max = min;
-        min = 0;
-      }
-      // Return a predictable sequence for testing generateRandomCapsule
-      if (QUnit.config.current.testName === 'generateRandomCapsule: generates valid capsule') {
-        return 1.5; // Always results in color 2
-      }
-      const result = randomValues[randomCallIndex % randomValues.length];
-      randomCallIndex++;
-      return result;
-    };
-    window.floor = Math.floor;
-  });
+QUnit.hooks.afterEach(function() {
+  // Restore original global state
+  capsule = originalCapsule;
+  nextCapsule = originalNextCapsule;
+  grid = originalGrid;
+  gameState = originalGameState;
+  score = originalScore;
+  sounds = {}; // Clear mock sounds
+  window.random = undefined; // Clear mock
+  window.floor = undefined; // Clear mock
+});
 
-  hooks.afterEach(function() {
-    // Restore original global state
-    capsule = originalCapsule;
-    nextCapsule = originalNextCapsule;
-    grid = originalGrid;
-    gameState = originalGameState;
-    score = originalScore;
-    sounds = {}; // Clear mock sounds
-    window.random = undefined; // Clear mock
-    window.floor = undefined; // Clear mock
-  });
 
+QUnit.module('Core Game Mechanics', function() {
   /**
    * Tests the most basic horizontal clear scenario.
-   * It sets up a line of 4 identical capsule parts and asserts that 
+   * It sets up a line of 4 identical capsule parts and asserts that
    * the checkMatches function correctly identifies all 4 for clearing.
    */
   QUnit.test('checkMatches: horizontal clear of 4', function(assert) {
@@ -94,7 +95,7 @@ QUnit.module('Game Logic (Refactored)', function(hooks) {
     testGrid[15][0] = 1;
     testGrid[15][1] = 1;
     testGrid[15][2] = 1; // Only 3 in a row
-    
+
     const toClear = checkMatches(testGrid);
     assert.equal(toClear.size, 0, 'Should find no cells to clear');
   });
@@ -156,23 +157,8 @@ QUnit.module('Game Logic (Refactored)', function(hooks) {
     // 4. Assert the final state
     const expectedGrid = Array(BOARD_HEIGHT).fill(0).map(() => Array(BOARD_WIDTH).fill(0));
     expectedGrid[15][1] = 1; // The '1' should have fallen into the cleared space
-    
+
     assert.deepEqual(testGrid, expectedGrid, 'Piece should fall correctly after a line is cleared');
-  });
-
-  // --- NEW TESTS ---
-
-  /**
-   * Tests that generateRandomCapsule creates a capsule object with the expected structure
-   * and that its colors are within the valid range (1-3).
-   */
-  QUnit.test('generateRandomCapsule: generates valid capsule', function(assert) {
-    const capsule = generateRandomCapsule();
-    assert.ok(capsule.x !== undefined && capsule.y !== undefined, 'Capsule has x and y properties');
-    assert.ok(Array.isArray(capsule.parts) && capsule.parts.length === 2, 'Capsule has two parts');
-    assert.ok(capsule.parts[0].color >= 1 && capsule.parts[0].color <= 3, 'Part 0 color is valid');
-    assert.ok(capsule.parts[1].color >= 1 && capsule.parts[1].color <= 3, 'Part 1 color is valid');
-    assert.equal(capsule.orientation, 0, 'Capsule starts with orientation 0');
   });
 
   /**
@@ -207,18 +193,21 @@ QUnit.module('Game Logic (Refactored)', function(hooks) {
     grid[0][1] = 1; // Occupy the second part's position
     assert.notOk(isValidPosition(0, 0, capsule.parts, grid), 'Cannot move into an occupied cell (second part)');
   });
+});
 
+
+QUnit.module('Capsule Management', function() {
   /**
-   * Tests getVirusCount function.
-   * Ensures it accurately counts only viruses (colorCode > 10).
+   * Tests that generateRandomCapsule creates a capsule object with the expected structure
+   * and that its colors are within the valid range (1-3).
    */
-  QUnit.test('getVirusCount: counts viruses correctly', function(assert) {
-    grid[0][0] = 11; // Virus
-    grid[0][1] = 1;  // Capsule part
-    grid[1][0] = 12; // Virus
-    grid[1][1] = 0;  // Empty
-
-    assert.equal(getVirusCount(), 2, 'Should count only virus blocks');
+  QUnit.test('generateRandomCapsule: generates valid capsule', function(assert) {
+    const capsule = generateRandomCapsule();
+    assert.ok(capsule.x !== undefined && capsule.y !== undefined, 'Capsule has x and y properties');
+    assert.ok(Array.isArray(capsule.parts) && capsule.parts.length === 2, 'Capsule has two parts');
+    assert.ok(capsule.parts[0].color >= 1 && capsule.parts[0].color <= 3, 'Part 0 color is valid');
+    assert.ok(capsule.parts[1].color >= 1 && capsule.parts[1].color <= 3, 'Part 1 color is valid');
+    assert.equal(capsule.orientation, 0, 'Capsule starts with orientation 0');
   });
 
   /**
@@ -265,9 +254,9 @@ QUnit.module('Game Logic (Refactored)', function(hooks) {
     assert.equal(capsule.x, initialX, 'Capsule should move left');
 
     // Test collision with wall
-    capsule.x = BOARD_WIDTH - 1; // Move to right edge
-    moveCapsule(1, 0); // Try to move right out of bounds
-    assert.equal(capsule.x, BOARD_WIDTH - 1, 'Capsule should not move right out of bounds');
+    capsule.x = BOARD_WIDTH - 2; // Last valid position for a horizontal capsule.
+    moveCapsule(1, 0); // Try to move right
+    assert.equal(capsule.x, BOARD_WIDTH - 2, 'Capsule should not move right out of bounds');
 
     // Test collision with block
     grid[0][2] = 1; // Place block to the left
@@ -302,11 +291,26 @@ QUnit.module('Game Logic (Refactored)', function(hooks) {
     capsule.orientation = 0;
     capsule.parts = [{x:0,y:0,color:1}, {x:1,y:0,color:2}];
     // Block the space where it would rotate into (vertical position for part 1)
-    grid[0][BOARD_WIDTH - 1] = 3; 
+    grid[0][BOARD_WIDTH - 1] = 3;
     rotateCapsule(true);
     assert.equal(capsule.orientation, 0, 'Capsule should not rotate if blocked');
     assert.deepEqual(capsule.parts[0], {x:0,y:0,color:1}, 'Colors should not swap if rotation blocked');
     assert.deepEqual(capsule.parts[1], {x:1,y:0,color:2}, 'Positions should not change if rotation blocked');
   });
+});
 
+
+QUnit.module('Game State & Scoring', function() {
+  /**
+   * Tests getVirusCount function.
+   * Ensures it accurately counts only viruses (colorCode > 10).
+   */
+  QUnit.test('getVirusCount: counts viruses correctly', function(assert) {
+    grid[0][0] = 11; // Virus
+    grid[0][1] = 1;  // Capsule part
+    grid[1][0] = 12; // Virus
+    grid[1][1] = 0;  // Empty
+
+    assert.equal(getVirusCount(), 2, 'Should count only virus blocks');
+  });
 });
